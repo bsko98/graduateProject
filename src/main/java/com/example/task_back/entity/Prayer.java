@@ -25,5 +25,14 @@ public class Prayer {
     @Column
     private LocalDateTime timeOfPrayer; // 기도를 한 시각
 
+    @Override
+    public String toString() {
+        return "Prayer{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", timeOfPrayer=" + timeOfPrayer +
+                '}';
+    }
 }
 
