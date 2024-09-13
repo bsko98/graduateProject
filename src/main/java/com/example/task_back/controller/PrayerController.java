@@ -49,4 +49,11 @@ public class PrayerController {
         return prayerService.updatePrayer(prayer);
     }
 
+    @DeleteMapping("/deletePrayer/{id}")
+    public void deletePrayerById(@PathVariable("id") Long id){
+        System.out.println("delete 시작: "+ id);
+        prayerService.deletePrayerById(id);
+        System.out.println("delete 끝");
+    }
+
 }

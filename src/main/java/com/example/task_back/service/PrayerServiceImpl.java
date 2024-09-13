@@ -37,4 +37,8 @@ public class PrayerServiceImpl implements PrayerService {
         return prayerRepository.findById(id);
     }
 
+    public void deletePrayerById(Long id){
+        prayerRepository.deleteById(id);
+    }
+
 }
