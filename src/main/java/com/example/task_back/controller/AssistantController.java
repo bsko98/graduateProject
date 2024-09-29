@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/ai")
 public class AssistantController {
@@ -28,10 +26,10 @@ public class AssistantController {
         return chatModel.call(message);
     }
 
-    @GetMapping("/generateStream")
+ /*   @GetMapping("/generateStream")
     public Flux<ChatResponse> generateStream(@RequestParam(value = "message", defaultValue = "Tell me a joke") String message) {
         Prompt prompt = new Prompt(new UserMessage(message));
         return chatModel.stream(prompt);
-    }
+    }*/
     
 }
