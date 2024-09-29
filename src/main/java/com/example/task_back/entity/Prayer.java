@@ -17,7 +17,9 @@ public class Prayer {
 
     @Column
     private String title;
+
     @Column
+    @Lob
     private String content;
 
     //@ManyToOne
