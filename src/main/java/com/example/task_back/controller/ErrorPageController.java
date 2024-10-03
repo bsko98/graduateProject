@@ -12,4 +12,8 @@ public class ErrorPageController implements ErrorController {
     public String redirectRoot(){
         return "index.html";
     }
+
+    public String getErrorPath(){
+        return null;
+    }
 }
