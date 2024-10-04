@@ -1,7 +1,7 @@
 package com.example.task_back.controller;
 
 import com.example.task_back.dto.PrayerDto;
-import com.example.task_back.service.PrayerServiceImpl;
+import com.example.task_back.service.PrayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,8 +13,12 @@ import java.util.Optional;
 @RestController
 public class PrayerController {
 
+    private final PrayerService prayerService;
+
     @Autowired
-    private PrayerServiceImpl prayerService;
+    public PrayerController(PrayerService prayerService){
+        this.prayerService = prayerService;
+    }
 
 
     @GetMapping("/getMyPrayer")
