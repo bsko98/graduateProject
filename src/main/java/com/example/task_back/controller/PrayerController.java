@@ -4,8 +4,13 @@ import com.example.task_back.dto.PrayerDto;
 import com.example.task_back.service.PrayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,8 +26,25 @@ public class PrayerController {
     }
 
 
+    @GetMapping("/sex")
+    public ResponseEntity<String> testController(){
+        return ResponseEntity.ok("시발");
+    }
+
+
     @GetMapping("/getMyPrayer")
     public ResponseEntity<List<PrayerDto>> getPrayers() {
+        String id = SecurityContextHolder.getContext().getAuthentication().getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Iterator<? extends GrantedAuthority> iter = authorities.iterator();
+        GrantedAuthority auth = iter.next();
+        String role = auth.getAuthority();
+
+        System.out.println("username: "+id+" role: "+role);
+
+
         return ResponseEntity.ok(prayerService.findPrayer());
     }
 

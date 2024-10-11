@@ -33,6 +33,13 @@ public class AssistantController {
         return ResponseEntity.ok(aiService.generatePrayer(message));
     }
 
+    @GetMapping("/totalPrayerInWeek")
+    public ResponseEntity<Integer> getPrayerForWeek(){
+        int ans = aiService.getPrayerForWeek();
+        System.out.println("금주 기도 갯수: "+ans);
+        return ResponseEntity.ok(ans);
+    }
+
     @GetMapping("/analysis")
     public ResponseEntity<Map<String,Integer>> generateStream(@RequestParam(value = "message", defaultValue = "") String message) {
         return ResponseEntity.ok(aiService.analysisPrayer());

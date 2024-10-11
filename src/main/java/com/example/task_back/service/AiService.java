@@ -7,6 +7,9 @@ import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,12 +32,18 @@ public class AiService {
     }
 
     public Map<String,Integer> analysisPrayer(){
-        List<Prayer> prayerList = prayerRepository.findAll();
+        LocalDateTime startDate = LocalDateTime.of(LocalDate.now().minusDays(7), LocalTime.of(0,0,0));
+        LocalDateTime endDate = LocalDateTime.of(LocalDate.now(), LocalTime.of(23,59,59));
+        List<Prayer> prayerList = prayerRepository.findByTimeOfPrayerBetween(startDate,endDate);
         String prompt = createBatchPrompt(prayerList);
         System.out.println(prompt);
-        String[] response = chatModel.call(prompt).split(",");
+        String ans = chatModel.call(prompt);
+        System.out.println("답변: "+ans);
+        System.out.println(ans.trim());
+        String[] response = ans.replaceAll(" ","").split(",");
         Map<String,Integer> map = new HashMap<String,Integer>();
         for(String res : response){
+            System.out.println("카테고리: "+ res);
            if(map.containsKey(res)){
                map.put(res,map.get(res)+1);
            }else{
@@ -46,8 +55,8 @@ public class AiService {
     }
 
     private String createBatchPrompt(List<Prayer> prayers) {
-        StringBuilder promptBuilder = new StringBuilder("다음 기도제목을 적절한 카테고리로 분류해서 카테고리를 단어로만 한 줄로 대답해.\n\n");
-        promptBuilder.append("카테고리는 '건강', '학업', '영적 성장', '진로', '회개', '기타' 중 하나여야해:\n");
+        StringBuilder promptBuilder = new StringBuilder("다음 기도제목을 적절한 카테고리로 분류해서 카테고리를 단어로만 개행없이 한 줄로 콤마로 구분해서 대답해.\n");
+        promptBuilder.append("카테고리는 '감사', '중보', '회개', '간구', '인도', '고난과 위로', '성령의 임재' 중 하나여야해:\n\n");
                 /*.append("1. 건강\n")
                 .append("2. 학업\n")
                 .append("3. 영적 성장\n")
@@ -63,4 +72,12 @@ public class AiService {
         /*promptBuilder.append("\n각 기도제목의 분류:");*/
         return promptBuilder.toString();
     }
+
+    public Integer getPrayerForWeek(){
+        LocalDateTime startDate = LocalDateTime.of(LocalDate.now().minusDays(7), LocalTime.of(0,0,0));
+        LocalDateTime endDate = LocalDateTime.of(LocalDate.now(), LocalTime.of(23,59,59));
+        return prayerRepository.countByTimeOfPrayerBetween(startDate,endDate);
+
+    }
+
 }

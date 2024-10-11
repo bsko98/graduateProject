@@ -64,6 +64,4 @@ public class PrayerService {
         return prayerDto;
     }
 
-
-
 }
