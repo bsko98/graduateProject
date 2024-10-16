@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface PrayerRepository extends JpaRepository<Prayer, Long> {
 
-    List<Prayer> findByOrderByIdDesc();
-    List<Prayer> findByTimeOfPrayerBetween(LocalDateTime startDate, LocalDateTime endDate);
-    Integer countByTimeOfPrayerBetween(LocalDateTime startDate, LocalDateTime endDate);
+    List<Prayer> findByUsernameOrderByIdDesc(String username);
+    List<Prayer> findByUsernameAndTimeOfPrayerBetween(String username, LocalDateTime startDate, LocalDateTime endDate);
+    Integer countByUsernameAndTimeOfPrayerBetween(String username,LocalDateTime startDate, LocalDateTime endDate);
 }
 

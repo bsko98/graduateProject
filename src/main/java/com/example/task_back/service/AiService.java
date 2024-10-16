@@ -2,15 +2,14 @@ package com.example.task_back.service;
 
 import com.example.task_back.entity.Prayer;
 import com.example.task_back.repository.PrayerRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,13 +27,15 @@ public class AiService {
     }
 
     public String generatePrayer(String message){
-        return chatModel.call(message);
+        String prompt = message + " 부정적인 내용,욕설,폭력적인 내용은 포함하지말고 기도문만 보여줘";
+        return chatModel.call(prompt);
     }
 
     public Map<String,Integer> analysisPrayer(){
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         LocalDateTime startDate = LocalDateTime.of(LocalDate.now().minusDays(7), LocalTime.of(0,0,0));
         LocalDateTime endDate = LocalDateTime.of(LocalDate.now(), LocalTime.of(23,59,59));
-        List<Prayer> prayerList = prayerRepository.findByTimeOfPrayerBetween(startDate,endDate);
+        List<Prayer> prayerList = prayerRepository.findByUsernameAndTimeOfPrayerBetween(username,startDate,endDate);
         String prompt = createBatchPrompt(prayerList);
         System.out.println(prompt);
         String ans = chatModel.call(prompt);
@@ -66,17 +67,17 @@ public class AiService {
 
         // 각 기도제목을 추가
         for (int i = 0; i < prayers.size(); i++) {
-            promptBuilder.append(String.format("%d 기도제목: \"%s\"\n", i + 1, prayers.get(i).getContent()));
+            promptBuilder.append(String.format("%d 기도제목: \"%s\"\n", i + 1, prayers.get(i).getContent()).replaceAll("\n",""));
         }
 
-        /*promptBuilder.append("\n각 기도제목의 분류:");*/
         return promptBuilder.toString();
     }
 
     public Integer getPrayerForWeek(){
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         LocalDateTime startDate = LocalDateTime.of(LocalDate.now().minusDays(7), LocalTime.of(0,0,0));
         LocalDateTime endDate = LocalDateTime.of(LocalDate.now(), LocalTime.of(23,59,59));
-        return prayerRepository.countByTimeOfPrayerBetween(startDate,endDate);
+        return prayerRepository.countByUsernameAndTimeOfPrayerBetween(username,startDate,endDate);
 
     }
 

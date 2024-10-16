@@ -5,6 +5,7 @@ import com.example.task_back.entity.Prayer;
 import com.example.task_back.repository.PrayerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,8 +23,8 @@ public class PrayerService {
         this.prayerRepository = prayerRepository;
     }
 
-    public List<PrayerDto> findPrayer() {
-        return prayerRepository.findByOrderByIdDesc().stream()
+    public List<PrayerDto> findPrayer(String username) {
+        return prayerRepository.findByUsernameOrderByIdDesc(username).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -34,10 +35,12 @@ public class PrayerService {
     }
 
     public PrayerDto savePrayer(PrayerDto prayerDto){
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Prayer prayer = new Prayer();
         prayer.setTitle(prayerDto.getTitle());
         prayer.setContent(prayerDto.getContent());
         prayer.setTimeOfPrayer(LocalDateTime.now());
+        prayer.setUsername(username);
         Prayer savedPrayer = prayerRepository.save(prayer);
         return convertToDTO(savedPrayer);
     }
@@ -46,6 +49,7 @@ public class PrayerService {
         return prayerRepository.findById(id).map(prayer -> {
             prayer.setTitle(prayerDto.getTitle());
             prayer.setContent(prayerDto.getContent());
+            prayer.setUsername(prayerDto.getUsername());
             Prayer updatedUser = prayerRepository.save(prayer);
             return convertToDTO(updatedUser);
         });
@@ -61,6 +65,7 @@ public class PrayerService {
         prayerDto.setTitle(prayer.getTitle());
         prayerDto.setContent(prayer.getContent());
         prayerDto.setTimeOfPrayer(prayer.getTimeOfPrayer());
+        prayerDto.setUsername(prayer.getUsername());
         return prayerDto;
     }
 

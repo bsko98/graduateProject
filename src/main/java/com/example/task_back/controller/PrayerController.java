@@ -25,13 +25,6 @@ public class PrayerController {
         this.prayerService = prayerService;
     }
 
-
-    @GetMapping("/sex")
-    public ResponseEntity<String> testController(){
-        return ResponseEntity.ok("시발");
-    }
-
-
     @GetMapping("/getMyPrayer")
     public ResponseEntity<List<PrayerDto>> getPrayers() {
         String id = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -45,7 +38,7 @@ public class PrayerController {
         System.out.println("username: "+id+" role: "+role);
 
 
-        return ResponseEntity.ok(prayerService.findPrayer());
+        return ResponseEntity.ok(prayerService.findPrayer(id));
     }
 
     @GetMapping("/getPrayerById/{id}")

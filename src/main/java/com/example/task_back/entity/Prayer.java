@@ -27,6 +27,9 @@ public class Prayer {
     @Column
     private LocalDateTime timeOfPrayer; // 기도를 한 시각
 
+    @Column
+    private String username;
+
     @Override
     public String toString() {
         return "Prayer{" +
