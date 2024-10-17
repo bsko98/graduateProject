@@ -28,8 +28,8 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/loginPage","/signUp","/error","/login","/myGroup","/leaveGroup").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/createGroup").permitAll()
+                        .requestMatchers("/loginPage","/signUp","/error","/login","/myGroup").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/joinGroup").permitAll()
                         .requestMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/index.html").permitAll()
                         .anyRequest().authenticated());

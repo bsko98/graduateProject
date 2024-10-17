@@ -1,5 +1,6 @@
 package com.example.task_back.controller;
 
+import com.example.task_back.dto.GroupDto;
 import com.example.task_back.entity.Group;
 import com.example.task_back.entity.User;
 import com.example.task_back.service.GroupService;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class GroupController {
@@ -28,10 +30,9 @@ public class GroupController {
 
     //그룹 생성 (내가 그룹장)
     @PostMapping("/createGroup")
-    public ResponseEntity<String> createNewGroup(@RequestBody String groupName){
-        System.out.println(groupName);
-        Group newGroup = new Group(groupName);
-        return ResponseEntity.ok(groupService.createNewGroup(newGroup));
+    public ResponseEntity<String> createNewGroup(@RequestBody GroupDto myGroup){
+        System.out.println(myGroup.toString());
+        return ResponseEntity.ok(groupService.createNewGroup(myGroup));
     }
     
     //선택한 그룹 삭제
@@ -57,9 +58,12 @@ public class GroupController {
     }
 
     //그룹에 초대하는 로직
-    @PostMapping("/joinGroup/{username}")
-    public ResponseEntity<String> joinGroup(@PathVariable("username") String username,Long groupId){
-        String result = groupService.joinGroup(groupId,username);
+    @PostMapping("/joinGroup")
+    public ResponseEntity<String> joinGroup(@RequestBody Map<String, String> usernameAndGroupName){
+        String username = usernameAndGroupName.get("username");
+        String groupName = usernameAndGroupName.get("groupName");
+        System.out.println(username + " : "+ groupName);
+        String result = groupService.joinGroup(groupName,username);
         return ResponseEntity.ok(result);
     }
 

@@ -1,5 +1,6 @@
 package com.example.task_back.service;
 
+import com.example.task_back.dto.GroupDto;
 import com.example.task_back.entity.Group;
 import com.example.task_back.entity.User;
 import com.example.task_back.entity.UserGroup;
@@ -34,11 +35,13 @@ public class GroupService {
         return userGroupRepository.findGroupByUserId(myAccount.getId());
     }
 
-    public String createNewGroup(Group group) {
+    public String createNewGroup(GroupDto myGroup) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         System.out.println(username);
         User user = userRepository.findByUsername(username);
-        Group newGroup = groupRepository.save(group);
+        Group newGroup = new Group();
+        newGroup.setGroupName(myGroup.getGroupName());
+        groupRepository.save(newGroup);
         UserGroup userGroup = new UserGroup(user, newGroup, GroupRole.GROUP_LEADER);
         userGroupRepository.save(userGroup);
         return "생성완료";
@@ -77,11 +80,12 @@ public class GroupService {
     }
 
 
-    public String joinGroup(Long groupId,String username) {
+    public String joinGroup(String groupName,String username) {
         User user = userRepository.findByUsername(username);
         System.out.println("user정보에요: "+user.toString());
-        Optional<Group> group = groupRepository.findById(groupId);
-        UserGroup userGroup = new UserGroup(user, group.orElse(null),GroupRole.GROUP_MEMBER);
+        Group group = groupRepository.findByGroupName(groupName);
+       System.out.println("group 정보에요: "+group.toString());
+        UserGroup userGroup = new UserGroup(user, group,GroupRole.GROUP_MEMBER);
         userGroupRepository.save(userGroup);
         return "신규 가입되었습니다.";
     }
