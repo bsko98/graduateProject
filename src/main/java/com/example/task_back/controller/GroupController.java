@@ -35,30 +35,31 @@ public class GroupController {
     }
     
     //선택한 그룹 삭제
-    @DeleteMapping("/deleteGroup/{groupId}")
+    /*@DeleteMapping("/deleteGroup/{groupId}")
     public ResponseEntity<String> deleteGroup(@PathVariable("groupId") Long groupId){
         String result = groupService.deleteGroup(groupId);
         return ResponseEntity.ok(result);
-    }    
+    }    */
 
     //선택한 그룹에서 나오기
     @DeleteMapping("/leaveGroup/{groupId}")
     public ResponseEntity<String>leaveGroup(@PathVariable("groupId")Long groupId){
-        String result = groupService.leaveGroup(7L);
+        String result = groupService.leaveGroup(groupId);
         return ResponseEntity.ok("");
     }
 
     //선택한 그룹의 맴버들을 반환
-    @GetMapping("/getGroupMembers")
-    public ResponseEntity<List<User>> getGroupMembers(Long groupId){
+    @GetMapping("/getGroupMembers/{groupId}")
+    public ResponseEntity<List<User>> getGroupMembers(@PathVariable("groupId")Long groupId){
+        System.out.println("그룹 확인: "+groupId);
         List<User> memberList = groupService.getGroupMembers(groupId);
         return ResponseEntity.ok(memberList);
     }
 
-    //그룹에 가익하는 로직
-    @PostMapping("/joinGroup")
-    public ResponseEntity<String> joinGroup(Long groupId){
-        String result = groupService.joinGroup(groupId);
+    //그룹에 초대하는 로직
+    @PostMapping("/joinGroup/{username}")
+    public ResponseEntity<String> joinGroup(@PathVariable("username") String username,Long groupId){
+        String result = groupService.joinGroup(groupId,username);
         return ResponseEntity.ok(result);
     }
 

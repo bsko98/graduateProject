@@ -1,5 +1,6 @@
 package com.example.task_back.entity;
 
+import com.example.task_back.enums.GroupRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,16 +24,18 @@ public class UserGroup {
     @JoinColumn(name = "group_id")
     private Group group;
 
-    private String role;  // 예: "GROUP_LEADER", "MEMBER"
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private GroupRole role;  // 예: "GROUP_LEADER", "MEMBER"
 
     public UserGroup() {
 
     }
 
-    public UserGroup(User user, Group group, String role) {
+    public UserGroup(User user, Group group, GroupRole groupRole) {
         this.user = user;
         this.group = group;
-        this.role = role;
+        this.role = groupRole;
     }
 
     @Override

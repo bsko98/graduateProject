@@ -3,6 +3,7 @@ package com.example.task_back.service;
 import com.example.task_back.entity.Group;
 import com.example.task_back.entity.User;
 import com.example.task_back.entity.UserGroup;
+import com.example.task_back.enums.GroupRole;
 import com.example.task_back.repository.GroupRepository;
 import com.example.task_back.repository.UserGroupRepository;
 import com.example.task_back.repository.UserRepository;
@@ -38,28 +39,37 @@ public class GroupService {
         System.out.println(username);
         User user = userRepository.findByUsername(username);
         Group newGroup = groupRepository.save(group);
-        UserGroup userGroup = new UserGroup(user, newGroup, "GROUP_READER");
+        UserGroup userGroup = new UserGroup(user, newGroup, GroupRole.GROUP_LEADER);
         userGroupRepository.save(userGroup);
         return "생성완료";
     }
 
-    public String deleteGroup(Long groupId) {
+    /*public String deleteGroup(Long groupId) {
         userGroupRepository.deleteById(groupId);
         groupRepository.deleteById(groupId);
         return "삭제완료";
-    }
+    }*/
 
+    //테스트 케이스 1. 그룹장일 때 gId8 mId2, 2. 그룹원일 때 gID 7 mId41
     public String leaveGroup(Long groupId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Long userId = userRepository.findIdByUsername(username);
-        System.out.println("findIdByUsername 잘 작동하나? "+userId);
-        userGroupRepository.deleteByUserIdAndGroupId(userId,groupId);
-        return"";
+        User user = userRepository.findByUsername(username);
+        Long userId = user.getId();
+        String userRole = userGroupRepository.findRoleByUserId(userId);
+        System.out.println("findIdByUsername 잘 작동하나? "+userId+" 그리고 권한도: "+userRole);
+        if(userRole.equals("GROUP_LEADER")){
+            userGroupRepository.deleteById(groupId);
+            groupRepository.deleteById(groupId);
+        }else{
+            userGroupRepository.deleteByUserIdAndGroupId(userId,groupId);
+        }
+
+        return "삭제완료";
     }
 
 
     public List<User> getGroupMembers(Long groupId) {
-        List<User> memeberList = userGroupRepository.findAllByGroupId(7L);
+        List<User> memeberList = userGroupRepository.findAllByGroupId(groupId);
         for(User u : memeberList){
             System.out.println(u.toString());
         }
@@ -67,13 +77,12 @@ public class GroupService {
     }
 
 
-    public String joinGroup(Long groupId) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    public String joinGroup(Long groupId,String username) {
         User user = userRepository.findByUsername(username);
         System.out.println("user정보에요: "+user.toString());
         Optional<Group> group = groupRepository.findById(groupId);
-        UserGroup userGroup = new UserGroup(user, group.orElse(null),"GROUP_MEMBER");
+        UserGroup userGroup = new UserGroup(user, group.orElse(null),GroupRole.GROUP_MEMBER);
         userGroupRepository.save(userGroup);
-        return"굿";
+        return "신규 가입되었습니다.";
     }
 }
