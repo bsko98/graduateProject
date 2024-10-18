@@ -23,5 +23,8 @@ public interface UserGroupRepository extends JpaRepository<UserGroup, Long> {
     List<User> findAllByGroupId(@Param("groupId") Long groupId);
 
     @Query("SELECT ug.role FROM UserGroup ug WHERE ug.user.id = :userId")
-    String findRoleByUserId(@Param("userId")Long userId);
+    String findRoleByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT ug.user.id FROM UserGroup ug WHERE ug.group.id IN :groupIdList")
+    List<Long> findUserIdIn(@Param("groupIdList") List<Long> groupIdList);
 }

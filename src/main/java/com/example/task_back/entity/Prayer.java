@@ -27,8 +27,9 @@ public class Prayer {
     @Column
     private LocalDateTime timeOfPrayer; // 기도를 한 시각
 
-    @Column
-    private String username;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_username", referencedColumnName = "username")
+    private User user;
 
     @Override
     public String toString() {

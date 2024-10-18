@@ -53,7 +53,6 @@ public class GroupService {
         return "삭제완료";
     }*/
 
-    //테스트 케이스 1. 그룹장일 때 gId8 mId2, 2. 그룹원일 때 gID 7 mId41
     public String leaveGroup(Long groupId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username);

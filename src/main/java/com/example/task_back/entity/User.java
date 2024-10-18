@@ -16,6 +16,7 @@ import java.util.Set;
 @ToString(exclude = "userGroups")
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

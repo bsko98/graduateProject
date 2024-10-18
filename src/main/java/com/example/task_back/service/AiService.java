@@ -1,7 +1,9 @@
 package com.example.task_back.service;
 
 import com.example.task_back.entity.Prayer;
+import com.example.task_back.entity.User;
 import com.example.task_back.repository.PrayerRepository;
+import com.example.task_back.repository.UserRepository;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,11 +21,13 @@ import java.util.Map;
 public class AiService {
     private final PrayerRepository prayerRepository;
     private final OpenAiChatModel chatModel;
+    private final UserRepository userRepository;
 
     @Autowired
-    public AiService(PrayerRepository prayerRepository, OpenAiChatModel chatModel) {
+    public AiService(PrayerRepository prayerRepository, OpenAiChatModel chatModel, UserRepository userRepository) {
         this.prayerRepository = prayerRepository;
         this.chatModel = chatModel;
+        this.userRepository = userRepository;
     }
 
     public String generatePrayer(String message){
@@ -35,7 +39,7 @@ public class AiService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         LocalDateTime startDate = LocalDateTime.of(LocalDate.now().minusDays(7), LocalTime.of(0,0,0));
         LocalDateTime endDate = LocalDateTime.of(LocalDate.now(), LocalTime.of(23,59,59));
-        List<Prayer> prayerList = prayerRepository.findByUsernameAndTimeOfPrayerBetween(username,startDate,endDate);
+        List<Prayer> prayerList = prayerRepository.findByUserUsernameAndTimeOfPrayerBetween(username,startDate,endDate);
         String prompt = createBatchPrompt(prayerList);
         System.out.println(prompt);
         String ans = chatModel.call(prompt);
@@ -77,7 +81,7 @@ public class AiService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         LocalDateTime startDate = LocalDateTime.of(LocalDate.now().minusDays(7), LocalTime.of(0,0,0));
         LocalDateTime endDate = LocalDateTime.of(LocalDate.now(), LocalTime.of(23,59,59));
-        return prayerRepository.countByUsernameAndTimeOfPrayerBetween(username,startDate,endDate);
+        return prayerRepository.countByUserUsernameAndTimeOfPrayerBetween(username,startDate,endDate);
 
     }
 

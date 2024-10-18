@@ -1,6 +1,10 @@
 package com.example.task_back.controller;
 
+import com.example.task_back.dto.GroupDto;
 import com.example.task_back.dto.PrayerDto;
+import com.example.task_back.entity.User;
+import com.example.task_back.repository.GroupRepository;
+import com.example.task_back.repository.UserGroupRepository;
 import com.example.task_back.service.PrayerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +24,7 @@ public class PrayerController {
 
     private final PrayerService prayerService;
 
+
     @Autowired
     public PrayerController(PrayerService prayerService){
         this.prayerService = prayerService;
@@ -30,12 +35,12 @@ public class PrayerController {
         String id = SecurityContextHolder.getContext().getAuthentication().getName();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        /*Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iter = authorities.iterator();
         GrantedAuthority auth = iter.next();
         String role = auth.getAuthority();
 
-        System.out.println("username: "+id+" role: "+role);
+        System.out.println("username: "+id+" role: "+role);*/
 
 
         return ResponseEntity.ok(prayerService.findPrayer(id));
@@ -68,6 +73,12 @@ public class PrayerController {
         System.out.println("delete 시작: "+ id);
         prayerService.deletePrayerById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/getGroupPrayer")
+    public ResponseEntity<List<PrayerDto>> getGroupPrayers(@RequestParam("groupName") String groupName) {
+        System.out.println("그룹명: "+groupName);
+        return ResponseEntity.ok(prayerService.getGroupPrayers(groupName));
     }
 
 }

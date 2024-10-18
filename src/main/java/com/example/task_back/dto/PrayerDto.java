@@ -16,5 +16,7 @@ public class PrayerDto {
     private String content;
     private LocalDateTime timeOfPrayer; // 기도를 한 시각
     private String username;
+    private String userNickname;
+    private Long userId;
 
 }
