@@ -21,13 +21,11 @@ import java.util.Map;
 public class AiService {
     private final PrayerRepository prayerRepository;
     private final OpenAiChatModel chatModel;
-    private final UserRepository userRepository;
 
     @Autowired
-    public AiService(PrayerRepository prayerRepository, OpenAiChatModel chatModel, UserRepository userRepository) {
+    public AiService(PrayerRepository prayerRepository, OpenAiChatModel chatModel) {
         this.prayerRepository = prayerRepository;
         this.chatModel = chatModel;
-        this.userRepository = userRepository;
     }
 
     public String generatePrayer(String message){

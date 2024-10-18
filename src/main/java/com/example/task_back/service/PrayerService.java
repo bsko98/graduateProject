@@ -36,7 +36,6 @@ public class PrayerService {
     }
 
     public List<PrayerDto> findPrayer(String username) {
-        User user = userRepository.findByUsername(username);
         return prayerRepository.findByUserUsernameOrderByIdDesc(username).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -82,7 +81,7 @@ public class PrayerService {
         List<Long> userIdList = userGroupRepository.findUserIdIn(groupIdList);
         List<PrayerDto> prayerList = prayerRepository.findLatestPrayerForEachUser(userIdList).stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());;
+                .collect(Collectors.toList());
         for(PrayerDto p : prayerList){
             System.out.println(p.toString());
         }
