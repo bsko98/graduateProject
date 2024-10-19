@@ -48,12 +48,14 @@ public class PrayerService {
 
     public PrayerDto savePrayer(PrayerDto prayerDto){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("뭐가 문젠데 시발: "+prayerDto.toString());
         User user = userRepository.findByUsername(username);
         Prayer prayer = new Prayer();
         prayer.setTitle(prayerDto.getTitle());
         prayer.setContent(prayerDto.getContent());
         prayer.setTimeOfPrayer(LocalDateTime.now());
         prayer.setUser(user);
+        prayer.setIsPrivate(prayerDto.getIsPrivate());
         Prayer savedPrayer = prayerRepository.save(prayer);
         return convertToDTO(savedPrayer);
     }
@@ -63,7 +65,7 @@ public class PrayerService {
         return prayerRepository.findById(id).map(prayer -> {
             prayer.setTitle(prayerDto.getTitle());
             prayer.setContent(prayerDto.getContent());
-            prayer.setUser(user);
+            prayer.setIsPrivate(prayerDto.getIsPrivate());
             Prayer updatedUser = prayerRepository.save(prayer);
             return convertToDTO(updatedUser);
         });
@@ -94,8 +96,8 @@ public class PrayerService {
         prayerDto.setTitle(prayer.getTitle());
         prayerDto.setContent(prayer.getContent());
         prayerDto.setTimeOfPrayer(prayer.getTimeOfPrayer());
-        prayerDto.setUsername(prayer.getUser().getUsername());
         prayerDto.setUserNickname(prayer.getUser().getNickname());
+        prayerDto.setIsPrivate(prayer.getIsPrivate());
         return prayerDto;
     }
 }

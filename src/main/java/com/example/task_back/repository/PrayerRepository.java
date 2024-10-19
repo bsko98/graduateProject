@@ -22,6 +22,7 @@ public interface PrayerRepository extends JpaRepository<Prayer, Long> {
             SELECT MAX(p2.id)
             FROM Prayer p2
             WHERE p2.user.id IN :userIdList
+            AND p2.isPrivate = false
             GROUP BY p2.user.id
             )
             """)
