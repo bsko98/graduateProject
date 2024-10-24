@@ -28,11 +28,14 @@ public class GroupController {
         return ResponseEntity.ok(groups);
     }
 
-    //그룹 생성 (내가 그룹장)
+
     @PostMapping("/createGroup")
     public ResponseEntity<String> createNewGroup(@RequestBody GroupDto myGroup){
         System.out.println(myGroup.toString());
-        return ResponseEntity.ok(groupService.createNewGroup(myGroup));
+        if(!myGroup.getGroupName().isEmpty()){
+            return ResponseEntity.ok(groupService.createNewGroup(myGroup)); 
+        }
+        return ResponseEntity.badRequest().body("그룹명을 입력해주세요");
     }
     
     //선택한 그룹 삭제
@@ -62,9 +65,19 @@ public class GroupController {
     public ResponseEntity<String> joinGroup(@RequestBody Map<String, String> usernameAndGroupName){
         String username = usernameAndGroupName.get("username");
         String groupName = usernameAndGroupName.get("groupName");
-        System.out.println(username + " : "+ groupName);
-        String result = groupService.joinGroup(groupName,username);
-        return ResponseEntity.ok(result);
+        if(username.isEmpty()){
+           return ResponseEntity.badRequest().body("사용자명을 입력해주세요"); 
+        }
+        else if(groupName==null) {
+            return ResponseEntity.badRequest().body("그룹명을 입력해주세요");
+        }else{
+            try {
+                String result = groupService.joinGroup(groupName, username);
+                return ResponseEntity.ok(result);
+            }catch(IllegalArgumentException e){
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
+        }
     }
 
 }

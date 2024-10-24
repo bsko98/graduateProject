@@ -27,4 +27,7 @@ public interface UserGroupRepository extends JpaRepository<UserGroup, Long> {
 
     @Query("SELECT ug.user.id FROM UserGroup ug WHERE ug.group.id IN :groupIdList")
     List<Long> findUserIdIn(@Param("groupIdList") List<Long> groupIdList);
+
+    boolean existsByUserAndGroup(User user, Group group);
+
 }

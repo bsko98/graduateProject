@@ -30,7 +30,13 @@ public class AssistantController {
 
     @GetMapping("/generatePrayer")
     public ResponseEntity<String> generatePrayer(@RequestParam(value = "message", defaultValue = "간단한 기도문 작성해줘") String message) {
-        return ResponseEntity.ok(aiService.generatePrayer(message));
+        try{
+            return ResponseEntity.ok(aiService.generatePrayer(message));
+        }
+        catch(IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 
     @GetMapping("/totalPrayerInWeek")
@@ -41,8 +47,13 @@ public class AssistantController {
     }
 
     @GetMapping("/analysis")
-    public ResponseEntity<Map<String,Integer>> generateStream(@RequestParam(value = "message", defaultValue = "") String message) {
-        return ResponseEntity.ok(aiService.analysisPrayer());
+    public ResponseEntity<Map<String,Integer>> generateCategory(@RequestParam(value = "message", defaultValue = "") String message) {
+        return ResponseEntity.ok(aiService.analysisPrayerCategory());
     }
-    
+
+    @GetMapping("/analysisKeywords")
+    public ResponseEntity<Map<String,Integer>> generateKeywords(@RequestParam(value = "message", defaultValue = "") String message) {
+        return ResponseEntity.ok(aiService.analysisPrayerKeywords());
+    }
+
 }

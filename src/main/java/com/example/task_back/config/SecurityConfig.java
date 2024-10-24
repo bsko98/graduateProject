@@ -28,7 +28,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/loginPage","/signUp","/error","/login","/getGroupPrayer").permitAll()
+                        .requestMatchers("/loginPage","/signUp","/error","/login","/ai/analysisKeywords").permitAll()
                         .requestMatchers(HttpMethod.POST,"/joinGroup").permitAll()
                         .requestMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers("/index.html").permitAll()

@@ -1,12 +1,14 @@
 package com.example.task_back.entity;
 
 
+import com.example.task_back.converter.StringListConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,12 +31,21 @@ public class Prayer {
     @Column
     private LocalDateTime timeOfPrayer; // 기도를 한 시각
 
-    @Column(name = "is_private")
-    private Boolean isPrivate;
+    @Column(name = "is_public")
+    private Boolean isPublic;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_username", referencedColumnName = "username")
     private User user;
+
+    @Column
+    private String category;
+
+    @Column
+    @Convert(converter = StringListConverter.class)
+    private List<String> keywords;
+
 
 }
 

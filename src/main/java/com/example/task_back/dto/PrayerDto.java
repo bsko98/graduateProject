@@ -18,6 +18,8 @@ public class PrayerDto {
     private String username;
     private String userNickname;
     private Long userId;
-    private Boolean isPrivate;
+    private Boolean isPublic;
+    private String category;
+    private String keywords;
 
 }

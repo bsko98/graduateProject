@@ -37,7 +37,6 @@ public class GroupService {
 
     public String createNewGroup(GroupDto myGroup) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println(username);
         User user = userRepository.findByUsername(username);
         Group newGroup = new Group();
         newGroup.setGroupName(myGroup.getGroupName());
@@ -58,33 +57,27 @@ public class GroupService {
         User user = userRepository.findByUsername(username);
         Long userId = user.getId();
         String userRole = userGroupRepository.findRoleByUserId(userId);
-        System.out.println("findIdByUsername 잘 작동하나? "+userId+" 그리고 권한도: "+userRole);
         if(userRole.equals("GROUP_LEADER")){
             userGroupRepository.deleteById(groupId);
             groupRepository.deleteById(groupId);
         }else{
             userGroupRepository.deleteByUserIdAndGroupId(userId,groupId);
         }
-
         return "삭제완료";
     }
 
 
     public List<User> getGroupMembers(Long groupId) {
-        List<User> memeberList = userGroupRepository.findAllByGroupId(groupId);
-        for(User u : memeberList){
-            System.out.println(u.toString());
-        }
-        return memeberList;
+        return userGroupRepository.findAllByGroupId(groupId);
     }
 
-
-    public String joinGroup(String groupName,String username) {
+    public String joinGroup(String groupName,String username) throws IllegalArgumentException{
         User user = userRepository.findByUsername(username);
-        System.out.println("user정보에요: "+user.toString());
         Group group = groupRepository.findByGroupName(groupName);
-       System.out.println("group 정보에요: "+group.toString());
         UserGroup userGroup = new UserGroup(user, group,GroupRole.GROUP_MEMBER);
+        if(userGroupRepository.existsByUserAndGroup(user,group)){
+            throw new IllegalArgumentException("이미 그룹에 참여중인 사용자입니다.");
+        }
         userGroupRepository.save(userGroup);
         return "신규 가입되었습니다.";
     }

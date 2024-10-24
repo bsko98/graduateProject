@@ -48,14 +48,13 @@ public class PrayerService {
 
     public PrayerDto savePrayer(PrayerDto prayerDto){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("뭐가 문젠데 시발: "+prayerDto.toString());
         User user = userRepository.findByUsername(username);
         Prayer prayer = new Prayer();
         prayer.setTitle(prayerDto.getTitle());
         prayer.setContent(prayerDto.getContent());
         prayer.setTimeOfPrayer(LocalDateTime.now());
         prayer.setUser(user);
-        prayer.setIsPrivate(prayerDto.getIsPrivate());
+        prayer.setIsPublic(prayerDto.getIsPublic());
         Prayer savedPrayer = prayerRepository.save(prayer);
         return convertToDTO(savedPrayer);
     }
@@ -65,7 +64,7 @@ public class PrayerService {
         return prayerRepository.findById(id).map(prayer -> {
             prayer.setTitle(prayerDto.getTitle());
             prayer.setContent(prayerDto.getContent());
-            prayer.setIsPrivate(prayerDto.getIsPrivate());
+            prayer.setIsPublic(prayerDto.getIsPublic());
             Prayer updatedUser = prayerRepository.save(prayer);
             return convertToDTO(updatedUser);
         });
@@ -77,17 +76,10 @@ public class PrayerService {
 
     public List<PrayerDto> getGroupPrayers(String groupName) {
         List<Long> groupIdList = groupRepository.findIdByGroupName(groupName);
-        for(Long id : groupIdList){
-            System.out.println("id값: "+id);
-        }
         List<Long> userIdList = userGroupRepository.findUserIdIn(groupIdList);
-        List<PrayerDto> prayerList = prayerRepository.findLatestPrayerForEachUser(userIdList).stream()
+        return prayerRepository.findLatestPrayerForEachUser(userIdList).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
-        for(PrayerDto p : prayerList){
-            System.out.println(p.toString());
-        }
-        return prayerList;
     }
 
     private PrayerDto convertToDTO(Prayer prayer) {
@@ -97,7 +89,7 @@ public class PrayerService {
         prayerDto.setContent(prayer.getContent());
         prayerDto.setTimeOfPrayer(prayer.getTimeOfPrayer());
         prayerDto.setUserNickname(prayer.getUser().getNickname());
-        prayerDto.setIsPrivate(prayer.getIsPrivate());
+        prayerDto.setIsPublic(prayer.getIsPublic());
         return prayerDto;
     }
 }
