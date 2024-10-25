@@ -14,9 +14,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.temporal.TemporalAdjusters;
+import java.util.*;
 
 
 @Service
@@ -53,32 +52,18 @@ public class AiService {
         return chatModel.call(prompt);
     }
 
-    public Map<String,Integer> analysisPrayerCategory(){
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        LocalDateTime startDate = LocalDateTime.of(LocalDate.now().minusMonths(1), LocalTime.of(0,0,0));
-        LocalDateTime endDate = LocalDateTime.of(LocalDate.now(), LocalTime.of(23,59,59));
-        List<Prayer> prayerList = prayerRepository.findByUserUsernameAndTimeOfPrayerBetween(username,startDate,endDate);
-        String prompt = createCategoryBatchPrompt(prayerList);
+    public String analysisPrayerCategory(String content){
+        String prompt = createCategoryBatchPrompt(content);
+        System.out.println(prompt);
         String ans = chatModel.call(prompt);
-        String[] response = ans.replaceAll(" ","").split(",");
-        Map<String,Integer> map = new HashMap<String,Integer>();
-        for(String res : response){
-           if(map.containsKey(res)){
-               map.put(res,map.get(res)+1);
-           }else{
-               map.put(res,1);
-           }
-        }
-        return map;
+        System.out.println("카테고리 분석 결과: "+ans);
+        return ans;
     }
 
-    private String createCategoryBatchPrompt(List<Prayer> prayers) {
-        StringBuilder promptBuilder = new StringBuilder("다음 기도제목을 적절한 카테고리로 분류해서 카테고리를 단어로만 개행없이 한 줄로 콤마로 구분해서 대답해.\n");
-        promptBuilder.append("카테고리는 '감사', '중보', '회개', '간구', '인도', '고난과 위로', '성령의 임재' 중 하나여야해:\n\n");
-
-        for (int i = 0; i < prayers.size(); i++) {
-            promptBuilder.append(String.format("%d 기도제목: \"%s\"\n", i + 1, prayers.get(i).getContent()).replaceAll("\n",""));
-        }
+    private String createCategoryBatchPrompt(String content) {
+        StringBuilder promptBuilder = new StringBuilder("다음 기도제목을 적절한 카테고리로 분류해서 카테고리를 한 단어로만 개행없이 한 줄로 콤마로 구분해서 대답해.\n");
+        promptBuilder.append("카테고리는 '감사', '중보', '회개', '간구', '인도', '치유' 중 하나여야해:\n\n");
+        promptBuilder.append(String.format("%d 기도제목: \"%s\"\n", 1, content).replaceAll("\n",""));
 
         return promptBuilder.toString();
     }
@@ -86,39 +71,67 @@ public class AiService {
 
     public Integer getPrayerForWeek(){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        LocalDateTime startDate = LocalDateTime.of(LocalDate.now().minusMonths(1), LocalTime.of(0,0,0));
-        LocalDateTime endDate = LocalDateTime.of(LocalDate.now(), LocalTime.of(23,59,59));
-        return prayerRepository.countByUserUsernameAndTimeOfPrayerBetween(username,startDate,endDate);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfMonth = now.with(TemporalAdjusters.lastDayOfMonth())
+                .withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+        return prayerRepository.countByUserUsernameAndTimeOfPrayerBetween(username,startOfMonth,endOfMonth);
 
     }
 
-    public Map<String, Integer> analysisPrayerKeywords() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        LocalDateTime startDate = LocalDateTime.of(LocalDate.now().minusMonths(1), LocalTime.of(0,0,0));
-        LocalDateTime endDate = LocalDateTime.of(LocalDate.now(), LocalTime.of(23,59,59));
-        List<Prayer> prayerList = prayerRepository.findByUserUsernameAndTimeOfPrayerBetween(username,startDate,endDate);
-        String prompt = createKeywordBatchPrompt(prayerList);
+    public List<String> analysisPrayerKeywords(String content) {
+        String prompt = createKeywordBatchPrompt(content);
         String ans = chatModel.call(prompt);
-        String[] response = ans.replaceAll(" ","").split(",");
+        List<String> response = new ArrayList<>(Arrays.asList(ans.replaceAll(" ","").split(",")));
+        for(String s : response){
+            System.out.println("키워드 결과: "+s);
+        }
+        return response;
+    }
+
+    private String createKeywordBatchPrompt(String content) {
+        StringBuilder promptBuilder = new StringBuilder("다음 기도에서 각 기도별로 적절한 키워드 기도당 3개를 명사 위주로 단어로만 대답해. 대답은 개행없이 한 줄로하고 각 기도도 콤마로 구분해서 대답해.\n");
+            promptBuilder.append(String.format("%d 기도제목: \"%s\"\n", 1, content).replaceAll("\n",""));
+
+        return promptBuilder.toString();
+    }
+
+
+    public Map<String, Integer> getPrayerCategory() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfMonth = now.with(TemporalAdjusters.lastDayOfMonth())
+                .withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+        List<Prayer> prayerList = prayerRepository.findByUserUsernameAndTimeOfPrayerBetween(username,startOfMonth,endOfMonth);
         Map<String,Integer> map = new HashMap<String,Integer>();
-        for(String res : response){
-            if(map.containsKey(res)){
-                map.put(res,map.get(res)+1);
+        for(Prayer prayer : prayerList){
+            if(map.containsKey(prayer.getCategory())){
+                map.put(prayer.getCategory(),map.get(prayer.getCategory())+1);
             }else{
-                map.put(res,1);
+                map.put(prayer.getCategory(),1);
             }
         }
         return map;
     }
 
-    private String createKeywordBatchPrompt(List<Prayer> prayers) {
-        StringBuilder promptBuilder = new StringBuilder("다음 기도에서 각 기도별로 적절한 키워드 기도당 3개를 명사 위주로 단어로만 대답해. 대답은 개행없이 한 줄로하고 각 기도도 콤마로 구분해서 대답해.\n");
-        for (int i = 0; i < prayers.size(); i++) {
-            promptBuilder.append(String.format("%d 기도제목: \"%s\"\n", i + 1, prayers.get(i).getContent()).replaceAll("\n",""));
+    public Map<String, Integer> getPrayerKeywords() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime endOfMonth = now.with(TemporalAdjusters.lastDayOfMonth())
+                .withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+        List<Prayer> prayerList = prayerRepository.findByUserUsernameAndTimeOfPrayerBetween(username,startOfMonth,endOfMonth);
+        Map<String,Integer> map = new HashMap<String,Integer>();
+        for(Prayer prayer: prayerList){
+            for(String keyword: prayer.getKeywords()){
+                if(map.containsKey(keyword)){
+                    map.put(keyword,map.get(keyword)+1);
+                }else{
+                    map.put(keyword,1);
+                }
+            }
         }
-        return promptBuilder.toString();
+        return map;
     }
-
-
-
 }

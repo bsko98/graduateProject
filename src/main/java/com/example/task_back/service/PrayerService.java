@@ -25,14 +25,16 @@ public class PrayerService {
     private final UserRepository userRepository;
     private final GroupRepository groupRepository;
     private final UserGroupRepository userGroupRepository;
+    private final AiService aiService;
 
     @Autowired
     public PrayerService(PrayerRepository prayerRepository, UserRepository userRepository,
-                         GroupRepository groupRepository,UserGroupRepository userGroupRepository) {
+                         GroupRepository groupRepository,UserGroupRepository userGroupRepository, AiService aiService) {
         this.prayerRepository = prayerRepository;
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.userGroupRepository = userGroupRepository;
+        this.aiService = aiService;
     }
 
     public List<PrayerDto> findPrayer(String username) {
@@ -55,6 +57,10 @@ public class PrayerService {
         prayer.setTimeOfPrayer(LocalDateTime.now());
         prayer.setUser(user);
         prayer.setIsPublic(prayerDto.getIsPublic());
+        String category = aiService.analysisPrayerCategory(prayerDto.getContent());
+        prayer.setCategory(category);
+        List<String> keyword = aiService.analysisPrayerKeywords(prayerDto.getContent());
+        prayer.setKeywords(keyword);
         Prayer savedPrayer = prayerRepository.save(prayer);
         return convertToDTO(savedPrayer);
     }
@@ -65,6 +71,10 @@ public class PrayerService {
             prayer.setTitle(prayerDto.getTitle());
             prayer.setContent(prayerDto.getContent());
             prayer.setIsPublic(prayerDto.getIsPublic());
+            String category = aiService.analysisPrayerCategory(prayerDto.getContent());
+            prayer.setCategory(category);
+            List<String> keyword = aiService.analysisPrayerKeywords(prayerDto.getContent());
+            prayer.setKeywords(keyword);
             Prayer updatedUser = prayerRepository.save(prayer);
             return convertToDTO(updatedUser);
         });

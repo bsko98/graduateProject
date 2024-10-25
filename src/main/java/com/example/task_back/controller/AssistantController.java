@@ -48,12 +48,12 @@ public class AssistantController {
 
     @GetMapping("/analysis")
     public ResponseEntity<Map<String,Integer>> generateCategory(@RequestParam(value = "message", defaultValue = "") String message) {
-        return ResponseEntity.ok(aiService.analysisPrayerCategory());
+        return ResponseEntity.ok(aiService.getPrayerCategory());
     }
 
     @GetMapping("/analysisKeywords")
     public ResponseEntity<Map<String,Integer>> generateKeywords(@RequestParam(value = "message", defaultValue = "") String message) {
-        return ResponseEntity.ok(aiService.analysisPrayerKeywords());
+        return ResponseEntity.ok(aiService.getPrayerKeywords());
     }
 
 }
