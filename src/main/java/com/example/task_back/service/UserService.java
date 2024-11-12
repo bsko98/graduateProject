@@ -4,6 +4,7 @@ import com.example.task_back.dto.UserRequestDto;
 import com.example.task_back.entity.Group;
 import com.example.task_back.entity.User;
 import com.example.task_back.entity.UserGroup;
+import com.example.task_back.enums.UserRole;
 import com.example.task_back.repository.UserGroupRepository;
 import com.example.task_back.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -46,10 +47,12 @@ public class UserService{
         newUser.setUsername(username);
         newUser.setPassword(passwordEncoder.encode(password));
         newUser.setNickname(nickname);
-        newUser.setRole("ROLE_ADMIN");
+        newUser.setRole(UserRole.ROLE_USER);
 
         userRepository.save(newUser);
     }
+
+
 
 
 }

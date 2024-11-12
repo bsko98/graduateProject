@@ -31,8 +31,12 @@ public class Prayer {
     @Column
     private LocalDateTime timeOfPrayer; // 기도를 한 시각
 
-    @Column(name = "is_public")
+    @Column(name = "is_public", nullable = false)
     private Boolean isPublic;
+
+
+    @Column(name = "deleted", nullable = false)
+    private Boolean deleted = false;
 
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,6 +49,7 @@ public class Prayer {
     @Column
     @Convert(converter = StringListConverter.class)
     private List<String> keywords;
+
 
 
 }

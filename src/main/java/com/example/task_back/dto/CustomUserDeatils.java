@@ -16,6 +16,7 @@ public class CustomUserDeatils implements UserDetails {
         this.user = user;
     }
 
+    //enum 사용했고, 리턴을 string으로 함 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
@@ -23,7 +24,7 @@ public class CustomUserDeatils implements UserDetails {
         collection.add(new GrantedAuthority() {
             @Override
             public String getAuthority() {
-                return user.getRole();
+                return user.getRole().toString();
             }
         });
 

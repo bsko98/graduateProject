@@ -10,6 +10,9 @@ import com.example.task_back.repository.UserGroupRepository;
 import com.example.task_back.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +41,7 @@ public class PrayerService {
     }
 
     public List<PrayerDto> findPrayer(String username) {
-        return prayerRepository.findByUserUsernameOrderByIdDesc(username).stream()
+        return prayerRepository.findByUserUsernameAndDeletedFalseOrderByIdDesc(username).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -80,8 +83,11 @@ public class PrayerService {
         });
     }
 
-    public void deletePrayerById(Long id){
-        prayerRepository.deleteById(id);
+    public PrayerDto deletePrayerById(Long id, PrayerDto prayerDto){
+        Prayer prayer = prayerRepository.findById(id).orElseThrow(() -> new NullPointerException("Prayer not found"));
+        prayer.setDeleted(true);
+        Prayer updatedUser = prayerRepository.save(prayer);
+        return convertToDTO(updatedUser);
     }
 
     public List<PrayerDto> getGroupPrayers(String groupName) {
@@ -101,5 +107,24 @@ public class PrayerService {
         prayerDto.setUserNickname(prayer.getUser().getNickname());
         prayerDto.setIsPublic(prayer.getIsPublic());
         return prayerDto;
+    }
+
+    public List<PrayerDto> getPrayerContainsKeyword(String keyword) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return prayerRepository.findByUser_UsernameAndKeywordsContaining(username, keyword).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<PrayerDto> findAllUserPrayer(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return prayerRepository.findAllByOrderByTimeOfPrayerDesc(pageable).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public Integer getAllUserPrayerCount() {
+        return (int) prayerRepository.count();
     }
 }

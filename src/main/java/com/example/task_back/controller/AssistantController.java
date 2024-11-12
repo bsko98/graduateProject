@@ -41,7 +41,7 @@ public class AssistantController {
 
     @GetMapping("/totalPrayerInWeek")
     public ResponseEntity<Integer> getPrayerForWeek(){
-        int ans = aiService.getPrayerForWeek();
+        int ans = aiService.getCountOfPrayerForMonth();
         System.out.println("금주 기도 갯수: "+ans);
         return ResponseEntity.ok(ans);
     }
@@ -54,6 +54,11 @@ public class AssistantController {
     @GetMapping("/analysisKeywords")
     public ResponseEntity<Map<String,Integer>> generateKeywords(@RequestParam(value = "message", defaultValue = "") String message) {
         return ResponseEntity.ok(aiService.getPrayerKeywords());
+    }
+
+    @GetMapping("/getCategoryComment")
+    public ResponseEntity<String> getCategoryComment(){
+        return ResponseEntity.ok(aiService.getCategoryComment());
     }
 
 }

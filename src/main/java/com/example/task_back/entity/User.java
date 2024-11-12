@@ -1,5 +1,7 @@
 package com.example.task_back.entity;
 
+import com.example.task_back.enums.GroupRole;
+import com.example.task_back.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,8 +32,9 @@ public class User {
     @Column(nullable = false,unique = true)
     private String nickname;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String role;
+    private UserRole role;
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
