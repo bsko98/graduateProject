@@ -28,7 +28,7 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/loginPage","/signUp","/error","/login","/getAllUserPrayer").permitAll()
+                        .requestMatchers("/loginPage","/signUp","/error","/login","/getComments/{id}").permitAll()
                         .requestMatchers(HttpMethod.POST,"/joinGroup").permitAll()
                         .requestMatchers("/admin/*").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**").permitAll()

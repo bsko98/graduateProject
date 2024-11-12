@@ -3,6 +3,7 @@ package com.example.task_back.entity;
 
 import com.example.task_back.converter.StringListConverter;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -50,6 +51,10 @@ public class Prayer {
     @Convert(converter = StringListConverter.class)
     private List<String> keywords;
 
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    @OneToMany(mappedBy = "prayer", cascade = CascadeType.ALL)
+    private List<Comment> commentList;
 
 
 }
