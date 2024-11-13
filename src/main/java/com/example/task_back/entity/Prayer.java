@@ -2,6 +2,7 @@ package com.example.task_back.entity;
 
 
 import com.example.task_back.converter.StringListConverter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -53,6 +54,7 @@ public class Prayer {
 
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
+    @JsonIgnore
     @OneToMany(mappedBy = "prayer", cascade = CascadeType.ALL)
     private List<Comment> commentList;
 

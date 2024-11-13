@@ -37,7 +37,7 @@ public class SecurityConfig {
         http
                 .formLogin((form)->form.loginPage("/loginPage")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/myPrayer",true)
+                        .defaultSuccessUrl("/myPrayerList",true)
                         .permitAll());
         http
                 .csrf(AbstractHttpConfigurer::disable);

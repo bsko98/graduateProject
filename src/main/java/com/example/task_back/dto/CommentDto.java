@@ -22,4 +22,9 @@ public class CommentDto {
 
     private String content;
 
+    private Prayer prayer;
+
+    private Long prayerId;
+
+    private String createdDateTime;
 }

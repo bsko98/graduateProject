@@ -1,5 +1,6 @@
 package com.example.task_back.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,6 +32,7 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "prayer_id", nullable = false)
+    @JsonIgnore
     private Prayer prayer;
 
 }

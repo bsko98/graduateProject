@@ -127,4 +127,32 @@ public class PrayerService {
     public Integer getAllUserPrayerCount() {
         return (int) prayerRepository.count();
     }
+
+    public List<PrayerDto> findMyPrayerList(String id, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return prayerRepository.findAllByUserUsernameOrderByTimeOfPrayerDesc(id, pageable).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public Integer getMyPrayerCount(String id) {
+        return prayerRepository.countByUserUsername(id);
+    }
+
+    public Integer getGroupPrayerCount(String groupName) {
+        List<Long> groupIdList = groupRepository.findIdByGroupName(groupName);
+        List<Long> userIdList = userGroupRepository.findUserIdIn(groupIdList);
+        return prayerRepository.countPrayerForEachUser(userIdList);
+    }
+
+    public List<PrayerDto> getGroupPrayerList(String groupName, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<Long> groupIdList = groupRepository.findIdByGroupName(groupName);
+        List<Long> userIdList = userGroupRepository.findUserIdIn(groupIdList);
+
+        return prayerRepository.findPrayerForEachUser(userIdList, pageable).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 }

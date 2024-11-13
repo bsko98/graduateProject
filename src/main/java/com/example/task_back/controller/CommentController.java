@@ -30,10 +30,16 @@ public class CommentController {
         return ResponseEntity.ok().body(commentList);
     }
 
-    /*@PostMapping("/saveComment/{id}")
-    public ResponseEntity<Comment> saveComment(@PathVariable("id") Long id, @RequestBody Comment comment){
-        return ResponseEntity.ok().body(commentService.saveComment(id,comment));
-    }*/
+    @PostMapping("/saveComment/{id}")
+    public ResponseEntity<CommentDto> saveComment(@PathVariable("id") Long id, @RequestBody CommentDto commentDto){
+        System.out.println(commentDto.toString());
+        return ResponseEntity.ok().body(commentService.saveComment(id,commentDto));
+    }
 
+    @DeleteMapping("/deleteComment/{id}")
+    public ResponseEntity<String> deleteComment(@PathVariable("id") Long id){
+        commentService.deleteComment(id);
+        return ResponseEntity.ok().body("삭제완료");
+    }
 
 }

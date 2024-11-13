@@ -36,5 +36,29 @@ public interface PrayerRepository extends JpaRepository<Prayer, Long> {
 
     //전체 사용자의 기도문을 조회(pagination 기능 사용)
     Page<Prayer> findAllByOrderByTimeOfPrayerDesc(Pageable pageable);
+
+    //특정 사용자의 기도문을 조회(pagination 기능 사용)
+    Page<Prayer> findAllByUserUsernameOrderByTimeOfPrayerDesc(String id, Pageable pageable);
+
+    Integer countByUserUsername(String id);
+
+    @Query("""
+            SELECT p FROM Prayer p
+            WHERE p.user.id IN :userIdList
+            AND p.isPublic = true
+            AND p.deleted = false
+            """)
+    Integer countPrayerForEachUser(@Param("userIdList") List<Long> userIdList);
+
+
+    @Query("""
+            SELECT p FROM Prayer p
+            WHERE p.user.id IN :userIdList
+            AND p.isPublic = true
+            AND p.deleted = false
+            """)
+    Page<Prayer> findPrayerForEachUser(@Param("userIdList") List<Long> userIdList, Pageable pageable);
+
+
 }
 

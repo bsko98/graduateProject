@@ -119,4 +119,33 @@ public class PrayerController {
         return ResponseEntity.ok().body(prayerService.getAllUserPrayerCount());
     }
 
+    @GetMapping("/getMyPrayerList")
+    public ResponseEntity<List<PrayerDto>> getMyPrayerList(@RequestParam(defaultValue = "0", value = "page") int page,
+                                                           @RequestParam(defaultValue = "10", value = "size") int size){
+        String id = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        return ResponseEntity.ok().body(prayerService.findMyPrayerList(id,page,size));
+    }
+
+    @GetMapping("/getMyPrayerCount")
+    public ResponseEntity<Integer> getMyPrayerCount(){
+        String id = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok().body(prayerService.getMyPrayerCount(id));
+    }
+
+    @GetMapping("/getGroupPrayerList")
+    public ResponseEntity<List<PrayerDto>> getGroupPrayerList(@RequestParam("groupName") String groupName,
+                                                            @RequestParam(defaultValue = "0", value = "page") int page,
+                                                           @RequestParam(defaultValue = "10", value = "size") int size){
+        return ResponseEntity.ok().body(prayerService.getGroupPrayerList(groupName,page,size));
+
+    }
+
+
+    @GetMapping("/getGroupPrayerCount")
+    public ResponseEntity<Integer> getGroupPrayerCount(@RequestParam("groupName") String groupName){
+        return ResponseEntity.ok().body(prayerService.getGroupPrayerCount(groupName));
+    }
+
+
 }
