@@ -38,8 +38,13 @@ public class CommentController {
 
     @DeleteMapping("/deleteComment/{id}")
     public ResponseEntity<String> deleteComment(@PathVariable("id") Long id){
-        commentService.deleteComment(id);
-        return ResponseEntity.ok().body("삭제완료");
+        try {
+            commentService.deleteComment(id);
+            return ResponseEntity.ok().body("삭제완료");
+        }
+        catch(IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
 }

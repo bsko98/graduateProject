@@ -13,6 +13,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -119,6 +123,7 @@ public class PrayerController {
         return ResponseEntity.ok().body(prayerService.getAllUserPrayerCount());
     }
 
+    // 내 기도문을 pagination해서 보여주기
     @GetMapping("/getMyPrayerList")
     public ResponseEntity<List<PrayerDto>> getMyPrayerList(@RequestParam(defaultValue = "0", value = "page") int page,
                                                            @RequestParam(defaultValue = "10", value = "size") int size){
@@ -127,12 +132,14 @@ public class PrayerController {
         return ResponseEntity.ok().body(prayerService.findMyPrayerList(id,page,size));
     }
 
+    //pagination을 위해 count값 가져옴
     @GetMapping("/getMyPrayerCount")
     public ResponseEntity<Integer> getMyPrayerCount(){
         String id = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok().body(prayerService.getMyPrayerCount(id));
     }
 
+    // 내 그룹 기도문을 pagination해서 가져옴
     @GetMapping("/getGroupPrayerList")
     public ResponseEntity<List<PrayerDto>> getGroupPrayerList(@RequestParam("groupName") String groupName,
                                                             @RequestParam(defaultValue = "0", value = "page") int page,
@@ -141,11 +148,20 @@ public class PrayerController {
 
     }
 
-
+    //그룹 기도문 cnt
     @GetMapping("/getGroupPrayerCount")
     public ResponseEntity<Integer> getGroupPrayerCount(@RequestParam("groupName") String groupName){
         return ResponseEntity.ok().body(prayerService.getGroupPrayerCount(groupName));
     }
 
+    @GetMapping("/getPrayerOfWeek")
+    public ResponseEntity<List<PrayerDto>> getPrayerOfWeek(){
+        return ResponseEntity.ok().body(prayerService.getPrayerOfWeek());
+    }
+
+    @GetMapping("/getRecommendPrayer")
+    public ResponseEntity<List<PrayerDto>> getRecommendPrayer(){
+        return ResponseEntity.ok().body(prayerService.getRecommendPrayer());
+    }
 
 }

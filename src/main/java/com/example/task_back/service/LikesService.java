@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class LikesService {
 
@@ -32,6 +34,7 @@ public class LikesService {
         Prayer prayer = prayerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Prayer not found with id: " + id));
         newLikes.setUser(user);
         newLikes.setPrayer(prayer);
+        newLikes.setCreateAt(LocalDateTime.now());
         likesRepository.save(newLikes);
     }
 
@@ -40,11 +43,5 @@ public class LikesService {
         return likesRepository.countByPrayer(prayer);
     }
 
-    /*public boolean isLiked(Long id){
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username);
-        Prayer prayer = prayerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Prayer not found with id: " + id));
-        return likesRepository.existsByUserAndPrayer(user,prayer);
-    }*/
 
 }

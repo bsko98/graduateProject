@@ -59,6 +59,12 @@ public interface PrayerRepository extends JpaRepository<Prayer, Long> {
             """)
     Page<Prayer> findPrayerForEachUser(@Param("userIdList") List<Long> userIdList, Pageable pageable);
 
+    List<Prayer> findAllByUserUsername(String username);
 
+    @Query("""
+            SELECT p FROM Prayer p
+            WHERE p.id IN :prayerIdList
+            """)
+    List<Prayer> findAllByIdIn(@Param("prayerIdList")List<Long> prayerIdList);
 }
 

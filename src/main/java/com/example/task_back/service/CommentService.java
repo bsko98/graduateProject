@@ -7,11 +7,15 @@ import com.example.task_back.repository.CommentRepository;
 import com.example.task_back.repository.PrayerRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,7 +60,18 @@ public class CommentService {
         return commentDto;
     }
 
-    public void deleteComment(Long id) {
+    public void deleteComment(Long id) throws IllegalArgumentException{
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Comment comment = commentRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Comment not found with id: " + id));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Iterator<? extends GrantedAuthority> iter = authorities.iterator();
+        GrantedAuthority auth = iter.next();
+        String role = auth.getAuthority();
+        if(!comment.getUsername().equals(username) && !role.equals("ROLE_ADMIN")){
+            throw new IllegalArgumentException("다른 사람의 댓글을 삭제할 수 없습니다.");
+        }
         commentRepository.deleteById(id);
     }
 }

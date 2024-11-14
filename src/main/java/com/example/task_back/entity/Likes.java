@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @Entity
 @ToString
 @Table(name = "Likes")
@@ -23,4 +25,7 @@ public class Likes {
     @ManyToOne
     @JoinColumn(name = "prayer_id")
     private Prayer prayer;
+
+    @Column
+    private LocalDateTime createAt;
 }

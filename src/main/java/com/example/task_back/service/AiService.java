@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -48,8 +49,8 @@ public class AiService {
                 throw new IllegalArgumentException("부적절한 내용이 감지되었습니다.");
             }
         }
-        String prompt = message + " 사용자에게 기도문을 작성해주는 서비스를 제공할거니까 기도문으로만 대답해. 부정적인 내용,욕설,폭력적인 내용은 포함하지말고 기도문만 보여줘. 기도문은 10줄이내로 작성해";
-        return chatModel.call(prompt);
+        String prompt = message + " 사용자에게 기도문을 작성해주는 서비스를 제공할거니까 기도문으로만 대답해. 부정적인 내용,욕설,폭력적인 내용은 포함하지말고 기도문만 보여줘. 기도문은 5줄이내로 작성해";
+        return chatModel.call(prompt).replaceAll("\\n","");
     }
 
     public String analysisPrayerCategory(String content){
@@ -89,7 +90,7 @@ public class AiService {
     }
 
     private String createKeywordBatchPrompt(String content) {
-        StringBuilder promptBuilder = new StringBuilder("다음 기도에서 각 기도별로 적절한 키워드 기도당 3개를 명사 위주로 단어로만 대답해. 대답은 개행없이 한 줄로하고 각 기도도 콤마로 구분해서 대답해.\n");
+        StringBuilder promptBuilder = new StringBuilder("다음 기도에서 각 기도별로 적절한 키워드 3개만 명사 위주로 단어로만 대답해. 대답은 개행없이 한 줄로하고 각 기도도 콤마로 구분해서 대답해.\n");
         promptBuilder.append(String.format("%d 기도제목: \"%s\"\n", 1, content).replaceAll("\n",""));
         return promptBuilder.toString();
     }

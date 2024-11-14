@@ -4,21 +4,22 @@ import com.example.task_back.dto.PrayerDto;
 import com.example.task_back.entity.Group;
 import com.example.task_back.entity.Prayer;
 import com.example.task_back.entity.User;
-import com.example.task_back.repository.GroupRepository;
-import com.example.task_back.repository.PrayerRepository;
-import com.example.task_back.repository.UserGroupRepository;
-import com.example.task_back.repository.UserRepository;
+import com.example.task_back.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,15 +30,18 @@ public class PrayerService {
     private final GroupRepository groupRepository;
     private final UserGroupRepository userGroupRepository;
     private final AiService aiService;
+    private final LikesRepository likesRepository;
 
     @Autowired
     public PrayerService(PrayerRepository prayerRepository, UserRepository userRepository,
-                         GroupRepository groupRepository,UserGroupRepository userGroupRepository, AiService aiService) {
+                         GroupRepository groupRepository, UserGroupRepository userGroupRepository,
+                         AiService aiService, LikesRepository likesRepository) {
         this.prayerRepository = prayerRepository;
         this.userRepository = userRepository;
         this.groupRepository = groupRepository;
         this.userGroupRepository = userGroupRepository;
         this.aiService = aiService;
+        this.likesRepository = likesRepository;
     }
 
     public List<PrayerDto> findPrayer(String username) {
@@ -154,5 +158,47 @@ public class PrayerService {
         return prayerRepository.findPrayerForEachUser(userIdList, pageable).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+
+    public List<PrayerDto> getPrayerOfWeek() {
+        LocalDateTime now = LocalDateTime.now();
+
+        LocalDateTime startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                .with(LocalTime.MIN);
+
+        LocalDateTime endOfWeek = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+                .with(LocalTime.MAX);
+
+        System.out.println("이번 주 시작: " + startOfWeek);
+        System.out.println("이번 주 끝: " + endOfWeek);
+
+        List<Long> prayerIdList = likesRepository.getMostLikedPrayer(startOfWeek,endOfWeek);
+        for(Long l : prayerIdList){
+            System.out.println("아이디 값: "+l);
+        }
+        return prayerRepository.findAllByIdIn(prayerIdList).stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    public List<PrayerDto> getRecommendPrayer() {
+        Map<String, Integer> myPrayerKeywords =  aiService.getPrayerKeywords();
+        Set<String> keys = myPrayerKeywords.keySet();
+        List<String> keyList = new ArrayList<>(keys);
+        List<PrayerDto> prayers = new ArrayList<>(3);
+        Collections.shuffle(keyList);
+
+        Set<String> randomKeywords = new HashSet<>(keyList.subList(0, Math.min(3, keyList.size())));
+        for(String s : randomKeywords){
+            PrayerDto prayerDto = new PrayerDto();
+            prayerDto.setTitle(s+" 관련 기도문");
+            prayerDto.setContent(aiService.generatePrayer(s+"을(를) 위한 기도문 작성해줘"));
+            prayers.add(prayerDto);
+        }
+        for(PrayerDto prayerDto: prayers){
+            System.out.println(prayerDto.toString());
+        }
+        return prayers;
     }
 }
