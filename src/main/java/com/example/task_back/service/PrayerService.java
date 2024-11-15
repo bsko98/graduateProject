@@ -1,19 +1,14 @@
 package com.example.task_back.service;
 
 import com.example.task_back.dto.PrayerDto;
-import com.example.task_back.entity.Group;
 import com.example.task_back.entity.Prayer;
 import com.example.task_back.entity.User;
 import com.example.task_back.repository.*;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
@@ -115,7 +110,7 @@ public class PrayerService {
 
     public List<PrayerDto> getPrayerContainsKeyword(String keyword) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return prayerRepository.findByUser_UsernameAndKeywordsContaining(username, keyword).stream()
+        return prayerRepository.findByUser_UsernameAndDeletedFalseAndKeywordsContaining(username, keyword).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
@@ -134,13 +129,13 @@ public class PrayerService {
 
     public List<PrayerDto> findMyPrayerList(String id, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return prayerRepository.findAllByUserUsernameOrderByTimeOfPrayerDesc(id, pageable).stream()
+        return prayerRepository.findAllByUserUsernameAndDeletedFalseOrderByTimeOfPrayerDesc(id, pageable).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     public Integer getMyPrayerCount(String id) {
-        return prayerRepository.countByUserUsername(id);
+        return prayerRepository.countByUserUsernameAndDeletedFalse(id);
     }
 
     public Integer getGroupPrayerCount(String groupName) {
@@ -170,13 +165,8 @@ public class PrayerService {
         LocalDateTime endOfWeek = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
                 .with(LocalTime.MAX);
 
-        System.out.println("이번 주 시작: " + startOfWeek);
-        System.out.println("이번 주 끝: " + endOfWeek);
-
         List<Long> prayerIdList = likesRepository.getMostLikedPrayer(startOfWeek,endOfWeek);
-        for(Long l : prayerIdList){
-            System.out.println("아이디 값: "+l);
-        }
+
         return prayerRepository.findAllByIdIn(prayerIdList).stream()
                 .map(this::convertToDTO)
                 .toList();
@@ -195,9 +185,6 @@ public class PrayerService {
             prayerDto.setTitle(s+" 관련 기도문");
             prayerDto.setContent(aiService.generatePrayer(s+"을(를) 위한 기도문 작성해줘"));
             prayers.add(prayerDto);
-        }
-        for(PrayerDto prayerDto: prayers){
-            System.out.println(prayerDto.toString());
         }
         return prayers;
     }
