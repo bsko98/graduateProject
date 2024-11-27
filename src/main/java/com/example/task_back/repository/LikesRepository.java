@@ -14,19 +14,6 @@ public interface LikesRepository extends JpaRepository<Likes, Long> {
     Integer countByPrayer(Prayer prayer);
 
 
-    @Query("""
-            SELECT l.prayer.id
-            FROM Likes l
-            WHERE l.createAt BETWEEN :startOfWeek AND :endOfWeek
-            GROUP BY l.prayer.id
-            HAVING COUNT(l) = (
-                    SELECT MAX(COUNT(l2))
-                    FROM Likes l2
-                    WHERE l2.createAt BETWEEN :startOfWeek AND :endOfWeek
-                    GROUP BY l2.prayer.id
-                )
-        """)
-    List<Long> getMostLikedPrayer(@Param("startOfWeek")LocalDateTime startOfWeek, @Param("endOfWeek")LocalDateTime endOfWeek);
 
     /*boolean existsByUserAndPrayer(User user, Prayer prayer);*/
 }

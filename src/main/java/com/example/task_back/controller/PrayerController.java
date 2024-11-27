@@ -66,10 +66,13 @@ public class PrayerController {
     }
 
     @PutMapping("/updatePrayer/{id}")
-    public ResponseEntity<PrayerDto> updatePrayer(@PathVariable("id") Long id, @RequestBody PrayerDto prayerDto){
-        Optional<PrayerDto> updatedPrayer = prayerService.updatePrayer(id, prayerDto);
-        return updatedPrayer.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<String> updatePrayer(@PathVariable("id") Long id, @RequestBody PrayerDto prayerDto){
+        try {
+            return ResponseEntity.ok().body(prayerService.updatePrayer(id, prayerDto));
+        }
+        catch(IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     /*@DeleteMapping("/deletePrayer/{id}")
@@ -80,10 +83,15 @@ public class PrayerController {
     }*/
 
     @PatchMapping("/deletePrayer/{id}")
-    public ResponseEntity<PrayerDto> deletePrayerById(@PathVariable("id") Long id,@RequestBody PrayerDto prayerDto){
-        System.out.println("delete 시작: "+ id);
-        PrayerDto updatedPrayer = prayerService.deletePrayerById(id, prayerDto);
-        return ResponseEntity.ok().body(updatedPrayer);
+    public ResponseEntity<String> deletePrayerById(@PathVariable("id") Long id,@RequestBody PrayerDto prayerDto){
+
+        try {
+            String username = SecurityContextHolder.getContext().getAuthentication().getName();
+            return ResponseEntity.ok().body(prayerService.deletePrayerById(id, prayerDto));
+        }
+        catch(IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/getGroupPrayer")
@@ -105,9 +113,7 @@ public class PrayerController {
             @RequestParam(defaultValue = "0", value = "page") int page,
             @RequestParam(defaultValue = "10", value = "size") int size
     ){
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iter = authorities.iterator();
         GrantedAuthority auth = iter.next();
@@ -129,6 +135,7 @@ public class PrayerController {
                                                            @RequestParam(defaultValue = "10", value = "size") int size){
         String id = SecurityContextHolder.getContext().getAuthentication().getName();
 
+        System.out.println(prayerService.findMyPrayerList(id,page,size).stream().toList().toString());
         return ResponseEntity.ok().body(prayerService.findMyPrayerList(id,page,size));
     }
 
@@ -152,11 +159,6 @@ public class PrayerController {
     @GetMapping("/getGroupPrayerCount")
     public ResponseEntity<Integer> getGroupPrayerCount(@RequestParam("groupName") String groupName){
         return ResponseEntity.ok().body(prayerService.getGroupPrayerCount(groupName));
-    }
-
-    @GetMapping("/getPrayerOfWeek")
-    public ResponseEntity<List<PrayerDto>> getPrayerOfWeek(){
-        return ResponseEntity.ok().body(prayerService.getPrayerOfWeek());
     }
 
     @GetMapping("/getRecommendPrayer")

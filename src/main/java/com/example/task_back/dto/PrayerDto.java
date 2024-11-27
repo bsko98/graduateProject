@@ -21,5 +21,7 @@ public class PrayerDto {
     private Boolean isPublic;
     private String category;
     private String keywords;
+    private String top;
+    private Integer likesCount;
 
 }

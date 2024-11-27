@@ -60,11 +60,5 @@ public interface PrayerRepository extends JpaRepository<Prayer, Long> {
 
     List<Prayer> findAllByUserUsername(String username);
 
-    @Query("""
-            SELECT p FROM Prayer p
-            WHERE p.id IN :prayerIdList
-            AND p.deleted = false
-            """)
-    List<Prayer> findAllByIdIn(@Param("prayerIdList")List<Long> prayerIdList);
 }
 

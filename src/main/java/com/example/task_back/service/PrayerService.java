@@ -7,12 +7,15 @@ import com.example.task_back.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -67,9 +70,22 @@ public class PrayerService {
         return convertToDTO(savedPrayer);
     }
 
-    public Optional<PrayerDto> updatePrayer(Long id, PrayerDto prayerDto){
+    public String updatePrayer(Long id, PrayerDto prayerDto)throws IllegalArgumentException{
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        System.out.println(prayerDto.toString());
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Iterator<? extends GrantedAuthority> iter = authorities.iterator();
+        GrantedAuthority auth = iter.next();
+        String role = auth.getAuthority();
+        if(!username.equals(prayerDto.getUsername()) && !role.equals("ROLE_ADMIN")){
+            System.out.println("다른 사용자의 게시글을 수정할 수 없습니다.");
+            throw new IllegalArgumentException("다른 사용자의 게시글을 수정할 수 없습니다.");
+        }
         User user = userRepository.findByUsername(prayerDto.getUsername());
-        return prayerRepository.findById(id).map(prayer -> {
+        prayerRepository.findById(id).map(prayer -> {
             prayer.setTitle(prayerDto.getTitle());
             prayer.setContent(prayerDto.getContent());
             prayer.setIsPublic(prayerDto.getIsPublic());
@@ -80,13 +96,26 @@ public class PrayerService {
             Prayer updatedUser = prayerRepository.save(prayer);
             return convertToDTO(updatedUser);
         });
+        return "정상적으로 수정되었습니다.";
     }
 
-    public PrayerDto deletePrayerById(Long id, PrayerDto prayerDto){
+    public String deletePrayerById(Long id, PrayerDto prayerDto)throws IllegalArgumentException{
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        Iterator<? extends GrantedAuthority> iter = authorities.iterator();
+        GrantedAuthority auth = iter.next();
+        String role = auth.getAuthority();
+        if(!username.equals(prayerDto.getUsername()) && !role.equals("ROLE_ADMIN")){
+            System.out.println("다른 사용자의 게시글을 삭제할 수 없습니다.");
+            throw new IllegalArgumentException("다른 사용자의 게시글을 삭제할 수 없습니다.");
+        }
         Prayer prayer = prayerRepository.findById(id).orElseThrow(() -> new NullPointerException("Prayer not found"));
         prayer.setDeleted(true);
         Prayer updatedUser = prayerRepository.save(prayer);
-        return convertToDTO(updatedUser);
+        convertToDTO(updatedUser);
+        return "정상적으로 삭제되었습니다.";
     }
 
     public List<PrayerDto> getGroupPrayers(String groupName) {
@@ -98,13 +127,17 @@ public class PrayerService {
     }
 
     private PrayerDto convertToDTO(Prayer prayer) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         PrayerDto prayerDto = new PrayerDto();
         prayerDto.setId(prayer.getId());
         prayerDto.setTitle(prayer.getTitle());
         prayerDto.setContent(prayer.getContent());
         prayerDto.setTimeOfPrayer(prayer.getTimeOfPrayer());
+        prayerDto.setTop(prayer.getTimeOfPrayer().format(formatter));
+        prayerDto.setUsername(prayer.getUser().getUsername());
         prayerDto.setUserNickname(prayer.getUser().getNickname());
         prayerDto.setIsPublic(prayer.getIsPublic());
+        prayerDto.setLikesCount(likesRepository.countByPrayer(prayer));
         return prayerDto;
     }
 
@@ -155,22 +188,6 @@ public class PrayerService {
                 .collect(Collectors.toList());
     }
 
-
-    public List<PrayerDto> getPrayerOfWeek() {
-        LocalDateTime now = LocalDateTime.now();
-
-        LocalDateTime startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-                .with(LocalTime.MIN);
-
-        LocalDateTime endOfWeek = now.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
-                .with(LocalTime.MAX);
-
-        List<Long> prayerIdList = likesRepository.getMostLikedPrayer(startOfWeek,endOfWeek);
-
-        return prayerRepository.findAllByIdIn(prayerIdList).stream()
-                .map(this::convertToDTO)
-                .toList();
-    }
 
     public List<PrayerDto> getRecommendPrayer() {
         Map<String, Integer> myPrayerKeywords =  aiService.getPrayerKeywords();
